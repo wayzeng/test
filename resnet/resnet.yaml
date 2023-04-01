@@ -1,0 +1,32 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: "InferenceService"
+metadata:
+  name: "resnet"
+  annotations:
+    sidecar.istio.io/proxyCPU: 3000m
+    sidecar.istio.io/proxyCPULimit: 3000m
+    proxy.istio.io/config: |
+      concurrency: 0
+    sidecar.istio.io/proxyMemory: 1Gi
+    sidecar.istio.io/proxyMemoryLimit: 1Gi
+spec:
+  predictor:
+    nodeSelector:
+      instance-type: "g4dn.12xlarge"
+    minReplicas: 1
+    maxReplicas: 1
+    triton:
+      storageUri: ""s3://mli-prod-triton-model-repo/resnet/""
+      runtimeVersion: 23.01-py3
+      env:
+      - name: OMP_NUM_THREADS
+        value: "1"
+      resources:
+        limits:
+          cpu: "8"
+          memory: 10Gi
+          nvidia.com/gpu: 1
+        requests:
+          cpu: "8"
+          memory: 10Gi
+          nvidia.com/gpu: 1
